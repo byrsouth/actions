@@ -1,0 +1,11 @@
+name: 'Byron'
+description: 'Creating TS actions'
+author: 'Your name or organization here'
+inputs:
+   who-to-greet: # change this
+      required: true
+      description: 'The person to greet'
+      default: 'Nurse'
+runs:
+   using: 'node16'
+   main: 'dist/index.js'
