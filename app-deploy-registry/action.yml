@@ -1,0 +1,15 @@
+name: 'app-deploy-history'
+description: 'Records Deployment hisotry'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
+inputs:
+  branch_name:
+    required: true
+    description: 'Name of the branch being deployed'
+  tag_name: 
+    required: true
+    description: 'Tag of the branch being deployed'
+  version_number:
+    required: true
+    description: 'Version number of the branch being deployed'
