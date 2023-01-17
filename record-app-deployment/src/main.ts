@@ -1,19 +1,40 @@
-import * as core from '@actions/core'
-import {wait} from './wait'
+import * as core from '@actions/core';
+import * as github from '@actions/github';
+import { DeployData } from './deployDataModel';
+
+import { recordDeployment } from './recordDeployment';
 
 async function run(): Promise<void> {
-  try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+   try {
+      const projectName: string = core.getInput('project');
+      const deployEvn: string = core.getInput('deploy-env');
+      const tagName: string = core.getInput('tag-name');
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+      const event = github.context.payload;
+      const commitData = event.commits[0];
 
-    core.setOutput('time', new Date().toTimeString())
-  } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
-  }
+      let deployData: DeployData = {
+         project: projectName,
+         deployEvn: deployEvn,
+         tagName: tagName,
+         commit: {
+            id: commitData.id,
+            userName: commitData.author.userName,
+            branch: event.repository?.default_branch,
+            branchURL: event.repository!.branches_url,
+            commitURL: event.repository!.commits_url,
+         },
+      };
+
+      await recordDeployment(deployData);
+
+      core.info(JSON.stringify(deployData));
+   } catch (error) {
+      if (error instanceof Error) {
+         core.setFailed(error.message);
+         core.error(error);
+      }
+   }
 }
 
-run()
+run();
